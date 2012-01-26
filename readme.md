@@ -30,7 +30,7 @@ First, add `require('markdown_conrefs')` to your code. This module only has two 
 
 * `replaceConref(data)` when you're ready to apply the conrefs, use this function. `data` is the string containing markdown refrences. This returns the string with the conref references replaced.
 
-Check out the _test/_ directory for some examples. Markdown within the phrase to be reused is supported&mdash;including links (_e.g. [[This is a link](http://www.github.com)](~myLink)).
+Check out the _test/_ directory for some examples. Markdown within the phrase to be reused is supported&mdash;including links (_e.g._ \[\[This is a link](http://www.github.com)] (~myLink)).
 
 The module automatically halts if:
 
