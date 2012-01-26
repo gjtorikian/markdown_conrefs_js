@@ -1,0 +1,19 @@
+{
+  "name": "markdown_conrefs",
+  "version" : "1.0.0",
+  "description" : "A system for including content references (conrefs) into Markdown files",
+  "main" : "markdown_conrefs.js",
+  "keywords" : [
+  	"conref",
+  	"conrefs",
+  	"markdown",
+  	"dita"
+  ],
+  "repository" : {
+	"type" : "git",
+	"url" : "https://yikulju@github.com/yikulju/Foursquare-on-node.git"
+	},
+  "dependencies": {
+    "hash": "~0.0.4"
+  }
+}
