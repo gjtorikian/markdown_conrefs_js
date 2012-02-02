@@ -45,8 +45,8 @@ function walkSync(baseDir, extRE) {
 // needs to be synch to load the entire hash table first
 markdown_conrefs.init = exports.init = function (srcDir, type) {
 	var extRE = new RegExp(type + '$')
-	var files = walkSync(srcDir, extRE);
-
+	var files = walkSync(process.cwd() + "/" + srcDir, extRE);
+  
   files.forEach( function (file) {
             var readFileStream = fs.createReadStream(file, {encoding: 'utf8'});
 
