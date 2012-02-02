@@ -4,12 +4,12 @@ Testing.
 
 One sentance.
 
-[~newProj] is an adequate product.
+(~newProj) is an adequate product.
 
 Blah blagh.
 
-Inline word. [~aTruth] Frau foo foo. [~expression]. Have you ever seen [~GHLink]
+Inline word. (~aTruth) Frau foo foo. (~expression). Have you ever seen (~GHLink) ?
 
-I like it when I eat a [~deliciousFood] _whilst_ wearing a [~warmItem]!
+I like it when I eat a (~deliciousFood) _whilst_ wearing a (~warmItem)!
 
-\_[~deliciousFood]\_? Yes!
+*(~deliciousFood)*? Yes!
