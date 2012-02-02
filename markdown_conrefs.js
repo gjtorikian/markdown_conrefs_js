@@ -43,17 +43,18 @@ function walkSync(baseDir, extRE) {
 };
 
 // needs to be synch to load the entire hash table first
-markdown_conrefs.init = exports.init = function (srcDir, type) {
+exports.init = function (srcDir, type) {
 	var extRE = new RegExp(type + '$')
-	var files = walkSync(process.cwd() + "/" + srcDir, extRE);
-  
+	var files = walkSync(srcDir, extRE);
+
   files.forEach( function (file) {
-            var readFileStream = fs.createReadStream(file, {encoding: 'utf8'});
+            var readFileStream = fs.createReadStream(file, {flags: 'r', encoding: 'utf8'});
 
             readFileStream.on('data', function (data) {
-              var conrefIds = data.match(/\[.+?\]\(~\w+\)/g);
-
+              var conrefIds = data.match(/\[.+?\]\(~\S+\)/g);
+                
               if (conrefIds != null)
+              {
                 conrefIds.forEach(function (element, index, array) {
                   var phrase, id;
                   if (element.match(/^\[\[/))
@@ -67,7 +68,7 @@ markdown_conrefs.init = exports.init = function (srcDir, type) {
                     phrase = phrase[0].substring(1, phrase[0].length - 1);
                   }
                   
-                  id = element.match(/\(~\w+\)/);
+                  id = element.match(/\(~\S+\)/);
                   id = id[0].substring(2, id[0].length - 1);
 
                   if (idToHash.get(id) !== undefined)
@@ -75,13 +76,18 @@ markdown_conrefs.init = exports.init = function (srcDir, type) {
                   else
                     idToHash.set(id, phrase);
                 });
-            });   
+              }  
+            });
+            readFileStream.on('error', function (err) {
+              console.error(file + " has this error: " + err);
+            }); 
   });
 }
 
-markdown_conrefs.replaceConref = exports.replaceConref = function (data) {
+exports.replaceConref = function (data) {
   var conrefIdRegExp = new RegExp(/\[~(.+?)\]/g);
-  return data.replace(conrefIdRegExp, idLookup);
+
+  return data.replace(conrefIdRegExp, idLookup(data));
 }
 
 function idLookup(str) {
