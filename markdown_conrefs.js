@@ -1,11 +1,11 @@
 var fs = require('fs'),
     _path = require('path'),
     assert = require('assert');
-var QHash = require('hashtable').QHash;
+var hash = require('hash');
 
 markdown_conrefs = exports;
 
-var idToHash = new QHash();
+var idToHash = new hash();
 
 function walkSync(baseDir, extRE) {
     baseDir = baseDir.replace(/\/$/, '');
