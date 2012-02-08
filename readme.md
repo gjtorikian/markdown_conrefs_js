@@ -39,4 +39,8 @@ The module automatically halts if:
 
 # Benchmarks
 
-Ah, the eternal question. I don't know if it's more efficient to have all your content references in one file, or, to have your content references spread out across various files. Currently, that's how the _test_ directory is set up. If anyone wants to do some benchmarks around this, that would be great!
+Ah, the eternal question. At my old job we discussed whether it'd be more efficient to keep all IDs in a single, reusable file, or keep the IDs spread out across many locations.
+
+I tested this by creating a single file with 10,000 conref IDs, and 10,000 files with a single conref ID. Presumably, lookups would cost the same amount of time, so I made a single call to `markdown_conref.init()` on each set of files.
+
+On average, the single file took 7ms to complete; the multiple files took 450ms. In other words, they're both damned fast, and for the writer, multiple files are easier to manage.

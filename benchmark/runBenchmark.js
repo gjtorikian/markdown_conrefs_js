@@ -1,2 +1,0 @@
-[sweater](~warmItem)
-[bananas](~deliciousFood)
