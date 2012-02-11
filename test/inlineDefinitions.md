@@ -6,10 +6,21 @@ Keep typing.
 
 More text.
 
-Here's an interesting phrase. The [Genesis](~newProj) project is a great idea; I hope marketing never changes it! That never, _ever_ happens, anyway. [I don't want to have to rewrite this.](~aTruth)
+Here's an interesting phrase. The [Genesis]{: #newProj} project is a great name; I hope marketing never changes it! That never, _ever_ happens, anyway. [I don't want to have to rewrite this.]{: .class1 id=aTruth .class2}
 
-Well, what a was [**A RELIEF**](~expression).
+Well, that was [**A RELIEF**]{: key=value id='expression' foo=bar}.
 
-Oh, and what about [[my website?](www.github.com)](~GHLink).
+Oh, and what about [[my website?](www.github.com)]{: #GHLink}.
 
-~Here's a starting tilde...for no reason.
+* Item 1
+* Item 2
+* Item 3
+{: #aNiceList}
+
+Here's a great, and final, paragraph.
+{: id="myPara"}
+
+```javascript
+console.log("Just another example...");
+```
+{: id='reusableCode' class="whatevs"}

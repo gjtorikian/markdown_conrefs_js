@@ -1,2 +1,2 @@
-[sweater](~warmItem)
-[bananas](~deliciousFood)
+[sweater]{: #warmItem}
+[bananas]{: id=deliciousFood}

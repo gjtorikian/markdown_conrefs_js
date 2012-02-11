@@ -1,13 +1,18 @@
-var marked = require('marked');
 var markdown_conref = require('../markdown_conrefs');
 var fs = require('fs');
+var assert = require('assert');
 
-markdown_conref.init(".", ".md");
+markdown_conref.init(".", ".md", [ "goldDoc.md" ]);
 
-fs.readFile("finalDoc.md", 'utf8', function(err, data) {
+fs.readFile("testDoc.md", 'utf8', function(err, data) {
 	if (!err)
 	{
 		var replacedContent = markdown_conref.replaceConref(data);
-		console.log(marked(replacedContent));
+		//console.log(replacedContent);
+
+		var goldFile = fs.readFileSync("goldDoc.md", 'utf8');
+		assert.deepEqual(replacedContent, goldFile, "The two files aren't matching!");
+
+		console.log("TEST PASSED ZOMG!");
 	}
 });
