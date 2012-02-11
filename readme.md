@@ -26,11 +26,6 @@ To attach to the block level, just create metadata for the last line of the bloc
 
 Here's a great, and final, paragraph.
 {: id="myPara"}
-
-```
-console.log("Just another example...");
-```
-{: id='reusableCode' class="whatevs"}
 ```
 
 Notice that there are three ways in Maruku to define attributes; this conref system supports all of them.
@@ -52,10 +47,11 @@ In order to reference the conref, you'll just use this syntax wherever you want 
 ```
 {:aNiceList}
 {:myPara}
-{:reusableCode}
+
 {:aTruth}
 {:expression}
 {:newProj}
+```
 
 Note: Any other attributes you've defined--class names, language identifiers for fenced code blocks, _e.t.c._--get pulled into the final document as well. Awesome!
 
