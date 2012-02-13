@@ -8,39 +8,6 @@ markdown_conrefs = exports;
 
 var idToHash = new hash();
 
-function walkSync(baseDir, extRE) {
-    baseDir = baseDir.replace(/\/$/, '');
-
-    var walkSync = function(baseDir) {
-            var files = [],
-                curFiles, nextDirs, isDir = function(fname) {
-                    return fs.statSync(_path.join(baseDir, fname)).isDirectory();
-                },
-                prependBaseDir = function(fname) {
-                    return _path.join(baseDir, fname);
-                };
-
-            curFiles = fs.readdirSync(baseDir);
-            nextDirs = curFiles.filter(isDir);
-            curFiles = curFiles.map(prependBaseDir);
-
-            files = files.concat(curFiles);
-
-            while (nextDirs.length) {
-                files = files.concat(walkSync(_path.join(baseDir, nextDirs.shift())));
-            }
-
-            return files;
-        };
-
-    // convert absolute paths to relative
-    var fileList = walkSync(baseDir).filter(function(val) {
-        return val.match(extRE) ? val.replace(baseDir + '/', '') : 0;
-    });
-
-    return fileList;
-};
-
 // needs to be synch to load the entire hash table first
 exports.init = function(srcDir, type, exclusions) {
     if (srcDir == ".")
@@ -177,6 +144,41 @@ exports.replaceConref = function(data) {
 
     return data;
 }
+
+// helper functions 
+
+function walkSync(baseDir, extRE) {
+    baseDir = baseDir.replace(/\/$/, '');
+
+    var walkSync = function(baseDir) {
+            var files = [],
+                curFiles, nextDirs, isDir = function(fname) {
+                    return fs.statSync(_path.join(baseDir, fname)).isDirectory();
+                },
+                prependBaseDir = function(fname) {
+                    return _path.join(baseDir, fname);
+                };
+
+            curFiles = fs.readdirSync(baseDir);
+            nextDirs = curFiles.filter(isDir);
+            curFiles = curFiles.map(prependBaseDir);
+
+            files = files.concat(curFiles);
+
+            while (nextDirs.length) {
+                files = files.concat(walkSync(_path.join(baseDir, nextDirs.shift())));
+            }
+
+            return files;
+        };
+
+    // convert absolute paths to relative
+    var fileList = walkSync(baseDir).filter(function(val) {
+        return val.match(extRE) ? val.replace(baseDir + '/', '') : 0;
+    });
+
+    return fileList;
+};
 
 function idLookup(id, str) {
     var phrase = idToHash.get(id);

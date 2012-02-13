@@ -60,7 +60,7 @@ Note: Any other attributes you've defined--class names, language identifiers for
 First, add `require('markdown_conrefs')` to your code. This module only has two functions:
 
 * `init(srcDir, type [, exclusions ])` must be called first! This creates the id-to-content hash. The parameters are:
-  * `srcDir` is the highest level directory you want to start searching content references for. 
+  * `srcDir` is a string name of a directory, or an Array of strings for directories. `srcDir` represents the highest level directory you want to start searching content references for--this module will recurisvely find all conref IDs in files to keep track of them. 
   * `type` is the extension of your markdown files. 
   * `exclusions` is an array of strings, indicating any files you don't want to process within `srcDir`. This is optional.
 
