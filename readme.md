@@ -40,7 +40,7 @@ I don't want to have to rewrite this.]{: .class1 id=aTruth .class2}
 
 Note: this format differs slightly from Maruku. Maruku metadata only applies to Markdown inline elements, like bold, or italic. This system allows you to conref even plain-text. In fact, [namp](https://github.com/gjtorikian/namp), my Markdown processor written in Node.js, also supports this notation.
 
-**Remember**: the syntax to define this metadata is `curly brace-colon-space`! Why is that important, well...
+**Remember**: the syntax to define this metadata is `curly brace-colon-space`! Why is that important? Well...
 
 In order to reference the conref, you'll just use this syntax wherever you want to do an insertion: `{:id}`. That's `curly brace-colon-id-curly brace`--nothing else! It's irrelevant if you defined your id with `#`, `id=""`, or `id=''`--all you want to do is use the id name. To use the examples above, that'd be:
 
@@ -59,10 +59,14 @@ Note: Any other attributes you've defined--class names, language identifiers for
 
 First, add `require('markdown_conrefs')` to your code. This module only has two functions:
 
-* `init(srcDir, type [, exclusions ])` must be called first! This creates the id-to-content hash. The parameters are:
-  * `srcDir` is a string name of a directory, or an Array of strings for directories. `srcDir` represents the highest level directory you want to start searching content references for--this module will recurisvely find all conref IDs in files to keep track of them. 
+* `init(source, type [, exclusions ])` must be called first! This creates the id-to-content hash. The parameters are:
+  * `source` is either:  
+   * A string containing the path to a single file
+   * A string name of a directory
+   * An Array of strings for directories. 
+   `source` represents the file you want to parse, _or_, the highest level directory you want to start searching content references for--this module will recurisvely find all conref IDs in files to keep track of them. **Note**: if you provide just the name of a single file for `source`, the other two parameters are unnecessary. In fact, don't pass anything, because it won't work.
   * `type` is the extension of your markdown files. 
-  * `exclusions` is an array of strings, indicating any files you don't want to process within `srcDir`. This is optional.
+  * `exclusions` is an array of strings, indicating any files or directories you don't want to process when `source` is a directory. This is optional.
 
 This function has no return value, and is synchronous/blocking.
 
@@ -83,4 +87,4 @@ The module automatically halts if:
 
 I tested this module by creating a single file with 10,000 conref IDs, and 10,000 files with a single conref ID. Presumably, lookups would cost the same amount of time, so I made a single call to `markdown_conref.init()` on each set of files.
 
-On average, the single file took 7ms to complete; the multiple files took 450ms. In other words, they're both damned fast, even with my poor programming skills. For the technical writer, a single file might be easier to manage.
+On average, the single file took 7ms to complete; the multiple files took 450ms. In other words, they're both damned fast, despite my mediocre programming. For the technical writer, a single file might be easier to manage.

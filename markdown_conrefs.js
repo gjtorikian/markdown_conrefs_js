@@ -9,37 +9,46 @@ markdown_conrefs = exports;
 var idToHash = new hash();
 
 // needs to be synch to load the entire hash table first
-exports.init = function(srcDir, type, exclusions) {
-    if (srcDir == ".")
-        srcDir = process.cwd();
+exports.init = function(source, type, exclusions) {
+    var files = [ ];
 
-    console.log("Creating conrefs in " + srcDir);
-    if (type.charAt(0) != ".") {
-        type = "\." + type;
+    if (source == ".")
+        source = process.cwd();
+
+    if (type === undefined) { // assume a single file
+        files.push(source);
+        console.log("Creating conrefs for " + source);
     }
 
-    var extRE = new RegExp(type + '$');
-    var files = [""];
-
-    if (Array.isArray(srcDir)) {
-        srcDir.forEach(function(dir, idx) {
-            files[0] += walkSync(dir, extRE).join(",");
-        });
-
-        files = files[0].split(",");
-    }
-    else files = walkSync(srcDir, extRE);
-
-    files = files.filter(function (f, idx, array) {
-        var found = false;
-        for (var i = 0; i < exclusions.length; i++)
-        {
-            if (f.indexOf(exclusions[i]) >= 0) {
-                found = true;
-            }
+    else {
+        console.log("Creating conrefs in " + source);
+        if (type.charAt(0) != ".") {
+            type = "\." + type;
         }
-        if (!found) return f;
-    });
+
+        var extRE = new RegExp(type + '$');
+
+
+        if (Array.isArray(source)) {
+            source.forEach(function(dir, idx) {
+                files[0] += walkSync(dir, extRE).join(",");
+            });
+
+            files = files[0].split(",");
+        }
+        else files = walkSync(source, extRE);
+
+        files = files.filter(function (f, idx, array) {
+            var found = false;
+            for (var i = 0; i < exclusions.length; i++)
+            {
+                if (f.indexOf(exclusions[i]) >= 0) {
+                    found = true;
+                }
+            }
+            if (!found) return f;
+        });
+    }
 
     files.forEach(function(file) {
         var readFileStream = fs.createReadStream(file, {
