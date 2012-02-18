@@ -18,9 +18,6 @@ exports.init = function(source, type, exclusions) {
     if (type === undefined || typeof type === 'function') { // assume a single file
         files.push(source);
         console.log("Creating conrefs for " + source);
-
-        if (typeof type === 'function')
-            callback = type;
     }
 
     else {
@@ -32,9 +29,8 @@ exports.init = function(source, type, exclusions) {
 
         var extRE = new RegExp(type + '$');
 
-
         if (Array.isArray(source)) {
-            source.forEach(function(dir, idx) {
+            source.forEach(function(dir) {
                 files[0] += walkSync(dir, extRE).join(",");
             });
 
@@ -42,7 +38,7 @@ exports.init = function(source, type, exclusions) {
         }
         else files = walkSync(source, extRE);
 
-        files = files.filter(function (f, idx, array) {
+        files = files.filter(function (f) {
             var found = false;
             for (var i = 0; i < exclusions.length; i++)
             {
@@ -55,13 +51,14 @@ exports.init = function(source, type, exclusions) {
     }
 
     files.forEach(function(file, idx, arr) { 
+        //console.log("Reading " + file + "...");
         var data = fs.readFileSync(file, "utf8");
 
         // collect defined IDs in files
         var conrefIdsInline = data.match(/\[(.+?)\]\{:\s*((?:\\\}|[^\}])*)\s*\}/g);
 
-        if (conrefIdsInline != null) {
-                conrefIdsInline.forEach(function(element, index, array) {
+        if (conrefIdsInline !== null) {
+                conrefIdsInline.forEach(function(element) {
                 var conrefId = element.match(/(\[(.+?)\])\{:\s*((?:\\\}|[^\}])*)\s*\}/);
 
                 var metas = process_meta_hash( conrefId[3] );
@@ -98,8 +95,8 @@ exports.init = function(source, type, exclusions) {
                        
         var conrefIdsBlock = data.match(/(^|\n) {0,3}\{:\s*((?:\\\}|[^\}])*)\s*\}/g);
 
-        if (conrefIdsBlock != null) {
-            conrefIdsBlock.forEach(function(element, index, array) {
+        if (conrefIdsBlock !== null) {
+            conrefIdsBlock.forEach(function(element) {
                 var conrefId = element.match(/(^|\n) {0,3}\{:\s*((?:\\\}|[^\}])*)\s*\}/);
 
                 var metas = process_meta_hash( conrefId[2] );
@@ -129,7 +126,7 @@ exports.init = function(source, type, exclusions) {
                         }
                     }
 
-                    phrase = content.reverse(); // flip it around
+                    var phrase = content.reverse(); // flip it around
                     phrase.splice(phrase.length - 2, 1); // cut full metadata
                     phrase = phrase.join("\n"); // make it a string
 
@@ -143,13 +140,13 @@ exports.init = function(source, type, exclusions) {
             //console.log("Hashtable: " + util.inspect(idToHash));
         }
     });
-}
+};
 
 exports.replaceConref = function(data) { 
     var idRE = data.match(/\{:([^\s]+?)\}/g);
 
-    if (idRE != null) {
-        idRE.forEach(function(element, index, array) {
+    if (idRE !== null) {
+        idRE.forEach(function(element) {
             var id = element.match(/\{:([^\s]+?)\}/)[1];
 
             var phrase = idLookup(id, data);
@@ -165,7 +162,7 @@ exports.replaceConref = function(data) {
     }
 
     return data;
-}
+};
 
 // helper functions 
 
@@ -200,9 +197,9 @@ function walkSync(baseDir, extRE) {
     });
 
     return fileList;
-};
+}
 
-function idLookup(id, str) {
+function idLookup(id) {
     var phrase = idToHash.get(id);
 
     if (phrase === undefined) 
@@ -256,6 +253,7 @@ function split_meta_hash( meta_string ) {
         // shift off the next letter to be used straight away.
         // it was escaped so we'll keep it whatever it is
         letter = meta.shift();
+        break;
       default :
         parts[ parts.length - 1 ] += letter;
         break;
@@ -263,15 +261,6 @@ function split_meta_hash( meta_string ) {
   }
 
   return parts;
-}
-
-function extract_attr( jsonml ) {
-  return isArray(jsonml)
-      && jsonml.length > 1
-      && typeof jsonml[ 1 ] === "object"
-      && !( isArray(jsonml[ 1 ]) )
-      ? jsonml[ 1 ]
-      : undefined;
 }
 
 function isArray(obj) {
