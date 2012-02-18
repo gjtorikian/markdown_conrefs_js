@@ -12,7 +12,7 @@ From npm, just do
 
     npm install markdown_conrefs
 
-# Syntax and Using
+# Syntax
 
 The syntax follows the superior [Maruku metadata format for Markdown](http://maruku.rubyforge.org/maruku.html#meta). IDs are either attached at the block level, or inline.
 
@@ -53,9 +53,28 @@ In order to reference the conref, you'll just use this syntax wherever you want 
 {:newProj}
 ```
 
-Note: Any other attributes you've defined--class names, language identifiers for fenced code blocks, _e.t.c._--get pulled into the final document as well. Awesome!
+## Pulling additional attributes
+Any other attributes you've defined--class names, language identifiers for fenced code blocks, _e.t.c._--get pulled into the resulting document as well, **but the ID is stripped**. 
 
-# Adding this to your code
+Why? Consider the following text:
+
+```
+I am working on [Project X]{: #product .secret}. I love being on {:product}. It's more rewarding to be a part of {:product}.
+```
+
+If IDs were kept, the block would resolve as:
+
+```
+I am working on [Project X]{: #product .secret}. I love being on [Project X]{: #product .secret}. It's more rewarding to be a part of [Project X]{: #product .secret}.
+```
+
+That's now three elements in the same document with the same ID, `product`. Instead, the resolve happens like this:
+
+```
+I am working on [Project X]{: #product .secret}. I love being on [Project X]{: .secret}. It's more rewarding to be a part of [Project X]{: .secret}.
+```
+
+# Using
 
 First, add `require('markdown_conrefs')` to your code. This module only has two functions:
 

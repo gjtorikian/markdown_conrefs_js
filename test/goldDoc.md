@@ -1,39 +1,37 @@
 # Final Document
 
-T[esting]{: id=testingSuffix}.
+T[esting]{: id=testingSuffix} the reference of an ID within the same document.
 
-One sentance.
+[Genesis]{: .secret} was the name of an adequate product.
 
-Genesis is an adequate product.
-
-Blah blagh.
-
-Inline word. I don't want to have to rewrite this. Frau foo foo. **A RELIEF**. Have you ever seen [my website?](www.github.com) ?
+Why did I do all this? [I don't want to have to rewrite this thing, with multiple classes inline.]{: .class1 .class2} If it renders, that's [**A RELIEF**]{: key=value foo=bar}. By the way, have you ever seen [testing links](www.github.com) ?
 
 I like it when I eat a bananas _whilst_ wearing a sweater!
 
-*bananas*? Yes!
+Wait, did you say *bananas*? Yes!
 
-Remember to add newlines, like in this code sample:
+Let's start pulling in blocks:
 
 ```javascript
 console.log("Just another example...");
 ```
-{: id='reusableCode' class="whatevs"}
+{: class="whatevs"}
 
-
-
-I had a question about these items:
+Also, I had a question about these items:
 
 * Item 1
 * Item 2
 * Item 3
-{: #aNiceList}
+{: short='true'}
 
+And another list, without an attribute
 
-Finished testing!
+* 4
+* 5
+* 6
 
-Wait!!! 
 
 Here's a great, and final, paragraph.
-{: id="myPara"}
+{: .wonderful words=nonsense .delete}
+
+Finished testing!

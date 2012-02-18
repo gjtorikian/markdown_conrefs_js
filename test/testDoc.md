@@ -1,30 +1,27 @@
 # Final Document
 
-T[esting]{: id=testingSuffix}.
+T[esting]{: id=testingSuffix} the reference of an ID within the same document.
 
-One sentance.
+{:newProj} was the name of an adequate product.
 
-{:newProj} is an adequate product.
-
-Blah blagh.
-
-Inline word. {:aTruth} Frau foo foo. {:expression}. Have you ever seen {:GHLink} ?
+Why did I do all this? {:aTruth} If it renders, that's {:expression}. By the way, have you ever seen {:GHLink} ?
 
 I like it when I eat a {:deliciousFood} _whilst_ wearing a {:warmItem}!
 
-*{:deliciousFood}*? Yes!
+Wait, did you say *{:deliciousFood}*? Yes!
 
-Remember to add newlines, like in this code sample:
+Let's start pulling in blocks:
 
 {:reusableCode}
 
-
-I had a question about these items:
+Also, I had a question about these items:
 
 {:aNiceList}
 
-Finished t{:testingSuffix}!
+And another list, without an attribute
 
-Wait!!! 
+{:aMeanList}
 
 {:myPara}
+
+Finished t{:testingSuffix}!

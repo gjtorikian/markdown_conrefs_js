@@ -1,26 +1,25 @@
-# An inner file
+Here's an inline phrase, ID first, class at the back: [Genesis]{: .secret #newProj}. Looking good.
 
-I am just going to type.
+Now, let's try to complicate things with multiple classes, and an id hidden in the middle--[I don't want to have to rewrite this thing, with multiple classes inline.]{: .class1 id=aTruth .class2}--still inline.
 
-Keep typing.
+Well, what if the conref has Markdown embedded in it? Is it [**A RELIEF**]{: key=value id='expression' foo=bar}?
 
-More text.
-
-Here's an interesting phrase. The [Genesis]{: #newProj} project is a great name; I hope marketing never changes it! That never, _ever_ happens, anyway. [I don't want to have to rewrite this.]{: .class1 id=aTruth .class2}
-
-Well, that was [**A RELIEF**]{: key=value id='expression' foo=bar}.
-
-Oh, and what about [[my website?](www.github.com)]{: #GHLink}.
+Oh, and what about [[testing links](www.github.com)]{: #GHLink}?
 
 * Item 1
 * Item 2
 * Item 3
-{: #aNiceList}
+{: id='aNiceList' short='true'} 
+
+* 4
+* 5
+* 6
+{: id=aMeanList} 
 
 Here's a great, and final, paragraph.
-{: id="myPara"}
+{: .wonderful #myPara words=nonsense .delete}
 
 ```javascript
 console.log("Just another example...");
 ```
-{: id='reusableCode' class="whatevs"}
+{: class="whatevs" id=reusableCode}

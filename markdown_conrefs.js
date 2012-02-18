@@ -1,5 +1,5 @@
 var fs = require('fs'),
-    _path = require('path'),
+    path = require('path'),
     assert = require('assert'),
     util = require('util');
 var hash = require('hash');
@@ -15,13 +15,17 @@ exports.init = function(source, type, exclusions) {
     if (source == ".")
         source = process.cwd();
 
-    if (type === undefined) { // assume a single file
+    if (type === undefined || typeof type === 'function') { // assume a single file
         files.push(source);
         console.log("Creating conrefs for " + source);
+
+        if (typeof type === 'function')
+            callback = type;
     }
 
     else {
         console.log("Creating conrefs in " + source);
+
         if (type.charAt(0) != ".") {
             type = "\." + type;
         }
@@ -50,89 +54,98 @@ exports.init = function(source, type, exclusions) {
         });
     }
 
-    files.forEach(function(file) {
-        var readFileStream = fs.createReadStream(file, {
-            encoding: 'utf8'
-        });
+    files.forEach(function(file, idx, arr) { 
+        var data = fs.readFileSync(file, "utf8");
 
         // collect defined IDs in files
-        readFileStream.on('data', function(data) {
-            var conrefIdsInline = data.match(/\[(.+?)\]\{:\s*((?:\\\}|[^\}])*)\s*\}/g);
+        var conrefIdsInline = data.match(/\[(.+?)\]\{:\s*((?:\\\}|[^\}])*)\s*\}/g);
 
-            if (conrefIdsInline != null) {
+        if (conrefIdsInline != null) {
                 conrefIdsInline.forEach(function(element, index, array) {
-                    var conrefId = element.match(/\[(.+?)\]\{:\s*((?:\\\}|[^\}])*)\s*\}/);
-                    var meta = process_meta_hash( conrefId[2] ),
-                    attr = extract_attr( conrefId[1] );
+                var conrefId = element.match(/(\[(.+?)\])\{:\s*((?:\\\}|[^\}])*)\s*\}/);
 
-                    var id = makeId(meta, attr);
+                var metas = process_meta_hash( conrefId[3] );
+                var id = metas.id; 
+                var attrs = removeID(conrefId[3], id);
 
-                    if (id !== undefined && idToHash.get(id) !== undefined) 
-                        assert.ok(false, "Duplicate ID detected for " + id);
-                    else idToHash.set(id, conrefId[1]);
-                });
-            }
+                if (id !== undefined) {
+                    if (idToHash.get(id) !== undefined) {
+                        assert.ok(false, "Duplicate ID detected for '" + id +"'");
+                    }
+                    var phrase = !attrs ? conrefId[2] : conrefId[1] + attrs;
+                    idToHash.set(id, phrase);
+                }
+            });
+        }
 
-            /*var conrefIdsInLineUnmarked = data.match(/^\{:\s*((?:\\\}|[^\}])*)\s*\}/g);
+        /* To support inline tags, like *, _, `...maybe one day
+
+        var conrefIdsInLineUnmarked = data.match(/^\{:\s*((?:\\\}|[^\}])*)\s*\}/g);
  
-             if (conrefIdsInLineUnmarked != null) {
-                conrefIdsInLineUnmarked.forEach(function(element, index, array) {
-                    var conrefId = element.match(/^\{:\s*((?:\\\}|[^\}])*)\s*\}/);
-                    var meta = process_meta_hash( conrefId[2] ),
-                    attr = extract_attr( conrefId[1] );
+        if (conrefIdsInLineUnmarked != null) {
+            conrefIdsInLineUnmarked.forEach(function(element, index, array) {
+                var conrefId = element.match(/^\{:\s*((?:\\\}|[^\}])*)\s*\}/);
+                var meta = process_meta_hash( conrefId[2] ),
+                attr = extract_attr( conrefId[1] );
 
-                    var id = makeId(meta, attr);
+                var id = makeId(meta, attr);
 
-                    if (id !== undefined && idToHash.get(id) !== undefined) 
-                        assert.ok(false, "Duplicate ID detected for " + id);
-                    else idToHash.set(id, conrefId[1]);
-                });
-            } */
+                if (id !== undefined && idToHash.get(id) !== undefined) 
+                    assert.ok(false, "Duplicate ID detected for " + id);
+                else idToHash.set(id, conrefId[1]);
+            });
+        } */
                        
-            var conrefIdsBlock = data.match(/(^|\n) {0,3}\{:\s*((?:\\\}|[^\}])*)\s*\}/g);
+        var conrefIdsBlock = data.match(/(^|\n) {0,3}\{:\s*((?:\\\}|[^\}])*)\s*\}/g);
 
-            if (conrefIdsBlock != null) {
-                var lines = data.split("\n").reverse();
-                conrefIdsBlock.forEach(function(element, index, array) {
-                    var conrefId = element.match(/(^|\n) {0,3}\{:\s*((?:\\\}|[^\}])*)\s*\}/);
-                    var meta = process_meta_hash( conrefId[2] ),
-                    attr = extract_attr( conrefId[1] );
+        if (conrefIdsBlock != null) {
+            conrefIdsBlock.forEach(function(element, index, array) {
+                var conrefId = element.match(/(^|\n) {0,3}\{:\s*((?:\\\}|[^\}])*)\s*\}/);
 
-                    var id = makeId(meta, attr);
+                var metas = process_meta_hash( conrefId[2] );
+                var id = metas.id; 
+                var attrs = removeID(conrefId[2], id);
 
-                    var attrToLookFor = conrefId[0].trimLeft();
- 
+                if (id !== undefined) {
+                    if (idToHash.get(id) !== undefined) {
+                        assert.ok(false, "Duplicate ID detected for '" + id +"'");
+                    }
+
+                    var attrToLookFor = "{: " + conrefId[2].trim() + "}";
                     var content = new Array(1);
 
                     // probably the most expensive/slow way to do this
                     // can't seem to RegExp backwards like in Maruku
+                    var lines = data.split("\n").reverse();
                     for (var l = 0; l < lines.length; l++)
                     {
-                        if (lines[l] == attrToLookFor)
+                        if (lines[l].match(attrToLookFor))
                         {
                             do {
                                 content.push(lines[l]);
                                 l++;
                             } while (!lines[l].match(/^\s*$/));
-                        }    
+
+                        }
                     }
 
-                    phrase = content.reverse().join("\n");
+                    phrase = content.reverse(); // flip it around
+                    phrase.splice(phrase.length - 2, 1); // cut full metadata
+                    phrase = phrase.join("\n"); // make it a string
 
-                    if (id !== undefined && idToHash.get(id) !== undefined) 
-                        assert.ok(false, "Duplicate ID detected for " + id);
-                    else idToHash.set(id, phrase);
-                });
-            }   
-        });
-
-        readFileStream.on('error', function(err) {
-            console.error("File " + file + " has this error: " + err);
-        });
+                    idToHash.set(id, phrase + attrs);
+                }
+            });
+        }
+        
+        if (idx == arr.length - 1) {
+            console.log("Finished setting up conrefs...");
+            //console.log("Hashtable: " + util.inspect(idToHash));
+        }
     });
 }
 
-exports.replaceConref = function(data) {
+exports.replaceConref = function(data) { 
     var idRE = data.match(/\{:([^\s]+?)\}/g);
 
     if (idRE != null) {
@@ -162,10 +175,10 @@ function walkSync(baseDir, extRE) {
     var walkSync = function(baseDir) {
             var files = [],
                 curFiles, nextDirs, isDir = function(fname) {
-                    return fs.statSync(_path.join(baseDir, fname)).isDirectory();
+                    return fs.statSync(path.join(baseDir, fname)).isDirectory();
                 },
                 prependBaseDir = function(fname) {
-                    return _path.join(baseDir, fname);
+                    return path.join(baseDir, fname);
                 };
 
             curFiles = fs.readdirSync(baseDir);
@@ -175,7 +188,7 @@ function walkSync(baseDir, extRE) {
             files = files.concat(curFiles);
 
             while (nextDirs.length) {
-                files = files.concat(walkSync(_path.join(baseDir, nextDirs.shift())));
+                files = files.concat(walkSync(path.join(baseDir, nextDirs.shift())));
             }
 
             return files;
@@ -193,7 +206,7 @@ function idLookup(id, str) {
     var phrase = idToHash.get(id);
 
     if (phrase === undefined) 
-        assert.ok(false, "There's no content associated with the id: " + id + "; the string was " + str);
+        assert.ok(false, "There's no content associated with the the id '" + id +"'");
 
     return phrase;
 }
@@ -207,10 +220,9 @@ function process_meta_hash( meta_string ) {
     if ( /^#/.test( meta[ i ] ) ) {
       attr.id = meta[ i ].substring( 1 );
     }
-    // attribute: foo=bar
-    else if ( /id=/.test( meta[ i ] ) ) {
-      var s = meta[ i ].split( /=/ );
-      attr[ s[ 0 ] ] = s[ 1 ];
+    else if ( /^id=/.test( meta[ i ] ) ) {
+      var s = meta[ i ].split( /id=/ );
+      attr.id = s[ 1 ];
     }
   }
 
@@ -266,15 +278,24 @@ function isArray(obj) {
     return (obj instanceof Array || typeof obj === "array" || Array.isArray(obj));
 }
 
-function makeId(meta, attr) {
-    if ( !attr ) {
-        attr = {};
+function removeID(attr, id) {
+    if ( attr === undefined) {
+        return "";
     }
 
-    for ( var k in meta ) {
-        attr[k] = meta[k];
+    // if the last character was already }, leave it; otherwise, it could be
+    // a space, ', or " -- in which case, replace it
+
+    var m = new RegExp("(#|id=['\"]*)" + id + "(.|$)");
+
+    if (attr.match(m)) {
+        var strippedIDAttr = attr.replace(m, "").replace(/ {2,}/, " ");
+        
+        if (!strippedIDAttr.match(/\w/))
+            return "";
+        
+        return "{: " + strippedIDAttr.trim() + "}";
     }
 
-    // possibility: prefix with `file + "."` ?
-    return attr[k];
+    return "";
 }
