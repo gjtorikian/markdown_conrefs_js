@@ -91,7 +91,7 @@ This function has no return value, and is synchronous/blocking.
 
 * `replaceConref(data)` when you're ready to apply the conrefs, use this function. `data` is the string containing markdown refrences--it's usually the file you're reading. This function returns the string with the conref references replaced.
 
-Check out the _test/_ directory for an example; just run `node test/test.js` from this directory.
+Check out the _test/_ directory for an example; just run `cd test && node test/test.js` from this directory.
 
 Keep in mind that this module only replaces the references; you'll still need to run a Markdown parser in order to actually generate HTML.
 
