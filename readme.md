@@ -38,7 +38,7 @@ I don't want to have to rewrite this.]{: .class1 id=aTruth .class2}
 [Genesis]{: #newProj} 
 ```
 
-Note: this format differs slightly from Maruku. Maruku metadata only applies to Markdown inline elements, like bold, or italic. This system allows you to conref even plain-text. In fact, [namp](https://github.com/gjtorikian/namp), my Markdown processor written in Node.js, also supports this notation.
+Note that this format differs slightly from Maruku. Maruku metadata only applies to Markdown inline elements, like bold, or italic. This system allows you to conref even plain-text. In fact, [namp](https://github.com/gjtorikian/namp), my Markdown processor written in Node.js, also supports this notation.
 
 **Remember**: the syntax to define this metadata is `curly brace-colon-space`! Why is that important? Well...
 
@@ -54,6 +54,7 @@ In order to reference the conref, you'll just use this syntax wherever you want 
 ```
 
 ## Pulling additional attributes
+
 Any other attributes you've defined--class names, language identifiers for fenced code blocks, _e.t.c._--get pulled into the resulting document as well, **but the ID is stripped**. 
 
 Why? Consider the following text:
@@ -78,13 +79,13 @@ I am working on [Project X]{: #product .secret}. I love being on [Project X]{: .
 
 First, add `require('markdown_conrefs')` to your code. This module only has two functions:
 
-* `init(source, type [, exclusions ])` must be called first! This creates the id-to-content hash. The parameters are:
+* `init(source [, type] [, exclusions ])` must be called first! This creates the id-to-content hash. The parameters are:
   * `source` is either:  
    * A string containing the path to a single file
    * A string name of a directory
-   * An Array of strings for directories. 
-   `source` represents the file you want to parse, _or_, the highest level directory you want to start searching content references for--this module will recurisvely find all conref IDs in files to keep track of them. **Note**: if you provide just the name of a single file for `source`, the other two parameters are unnecessary. In fact, don't pass anything, because it won't work.
-  * `type` is the extension of your markdown files. 
+   * An Array of strings for directories and filenames
+   `source` represents the file you want to parse, _or_, the highest level directory you want to start searching content references for--this module will recursively find all conref IDs in files to keep track of them. **Note**: if you provide just the name of a single file for `source`, the other two parameters are unnecessary and won't do anything.
+  * `type` is the extension of your markdown files. This is optional, and defaults to ".md"
   * `exclusions` is an array of strings, indicating any files or directories you don't want to process when `source` is a directory. This is optional.
 
 This function has no return value, and is synchronous/blocking.

@@ -2,7 +2,8 @@ var fs = require('fs'),
     path = require('path'),
     assert = require('assert'),
     util = require('util');
-var hash = require('hash');
+var hash = require('hash'),
+    findit = require('findit');
 
 markdown_conrefs = exports;
 
@@ -10,45 +11,67 @@ var idToHash = new hash();
 
 // needs to be synch to load the entire hash table first
 exports.init = function(source, type, exclusions) {
-    var files = [ ];
+    var files = [ ], walker;
 
-    if (source == ".")
-        source = process.cwd();
+    if (source == ".") {
+        source =  [ process.cwd() ] ;
+    }
 
-    if (type === undefined || typeof type === 'function') { // assume a single file
+    if (!Array.isArray(source) && fs.statSync(source).isFile()) { // assume a single file
         files.push(source);
+        type = path.extname(source);
+
         console.log("Creating conrefs for " + source);
     }
 
     else {
+        if (!Array.isArray(source) && fs.statSync(source).isDirectory()) { // assume a single directory
+            source = [ source ];
+        }
+        
         console.log("Creating conrefs in " + source);
 
-        if (type.charAt(0) != ".") {
-            type = "\." + type;
+        if (type !== undefined) { // well, we have at least one more argument
+            if (Array.isArray(type)) { // it's not type, it's an array
+                exclusions = type;
+                type = "\.md";
+            }
+            else if (typeof type == "string") {
+                if (type.charAt(0) != ".") { // e.g. ".md", escape the '.'
+                    type = "\." + type;
+                }
+            }
+
+        }
+        else {
+            type = "\.md";
         }
 
         var extRE = new RegExp(type + '$');
 
-        if (Array.isArray(source)) {
-            source.forEach(function(dir) {
-                files[0] += walkSync(dir, extRE).join(",");
+        source.forEach(function(src) {
+            var foundFiles = findit.sync(src);
+            foundFiles.forEach(function(f) {
+                if (f.match(extRE))
+                    files.push(path.resolve(f));
             });
-
-            files = files[0].split(",");
-        }
-        else files = walkSync(source, extRE);
-
-        files = files.filter(function (f) {
-            var found = false;
-            for (var i = 0; i < exclusions.length; i++)
-            {
-                if (f.indexOf(exclusions[i]) >= 0) {
-                    found = true;
-                }
-            }
-            if (!found) return f;
         });
+
+        if (exclusions !== undefined) { // remove excluded files
+            files = files.filter(function (f) {
+                var found = false;
+                for (var i = 0; i < exclusions.length; i++)
+                {
+                    if (f.indexOf(exclusions[i]) >= 0) {
+                            found = true;
+                    }
+                }
+                if (!found) return f;
+            });
+        }
     }
+
+    files = eliminateDuplicates(files);
 
     files.forEach(function(file, idx, arr) { 
         //console.log("Reading " + file + "...");
@@ -67,7 +90,7 @@ exports.init = function(source, type, exclusions) {
 
                 if (id !== undefined) {
                     if (idToHash.get(id) !== undefined) {
-                        assert.ok(false, "Duplicate ID detected for '" + id +"'");
+                        assert.ok(false, "Duplicate ID detected for '" + id +"' in " + file);
                     }
                     var phrase = !attrs ? conrefId[2] : conrefId[1] + attrs;
                     idToHash.set(id, phrase);
@@ -105,7 +128,7 @@ exports.init = function(source, type, exclusions) {
 
                 if (id !== undefined) {
                     if (idToHash.get(id) !== undefined) {
-                        assert.ok(false, "Duplicate ID detected for '" + id +"'");
+                        assert.ok(false, "Duplicate ID detected for '" + id +"' in " + file);
                     }
 
                     var attrToLookFor = "{: " + conrefId[2].trim() + "}";
@@ -165,39 +188,6 @@ exports.replaceConref = function(data) {
 };
 
 // helper functions 
-
-function walkSync(baseDir, extRE) {
-    baseDir = baseDir.replace(/\/$/, '');
-
-    var walkSync = function(baseDir) {
-            var files = [],
-                curFiles, nextDirs, isDir = function(fname) {
-                    return fs.statSync(path.join(baseDir, fname)).isDirectory();
-                },
-                prependBaseDir = function(fname) {
-                    return path.join(baseDir, fname);
-                };
-
-            curFiles = fs.readdirSync(baseDir);
-            nextDirs = curFiles.filter(isDir);
-            curFiles = curFiles.map(prependBaseDir);
-
-            files = files.concat(curFiles);
-
-            while (nextDirs.length) {
-                files = files.concat(walkSync(path.join(baseDir, nextDirs.shift())));
-            }
-
-            return files;
-        };
-
-    // convert absolute paths to relative
-    var fileList = walkSync(baseDir).filter(function(val) {
-        return val.match(extRE) ? val.replace(baseDir + '/', '') : 0;
-    });
-
-    return fileList;
-}
 
 function idLookup(id) {
     var phrase = idToHash.get(id);
@@ -287,4 +277,19 @@ function removeID(attr, id) {
     }
 
     return "";
+}
+
+function eliminateDuplicates(arr) {
+  var i,
+      len=arr.length,
+      out=[],
+      obj={};
+
+  for (i=0;i<len;i++) {
+    obj[arr[i]]=0;
+  }
+  for (i in obj) {
+    out.push(i);
+  }
+  return out;
 }

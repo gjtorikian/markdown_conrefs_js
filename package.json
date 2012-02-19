@@ -1,19 +1,20 @@
 {
   "name": "markdown_conrefs",
-  "version" : "1.1.2",
+  "version" : "1.1.5",
   "description" : "A system for including content references (conrefs) into Markdown files",
   "main" : "markdown_conrefs.js",
   "keywords" : [
-  	"conref",
   	"conrefs",
   	"markdown",
-  	"dita"
+  	"dita",
+    "reference"
   ],
   "repository" : {
 	"type" : "git",
 	"url" : "https://gjtorikian@github.com/gjtorikian/markdown_conrefs.git"
 	},
   "dependencies": {
-    "hash": "~0.2.0"
+    "hash": "~0.2.0",
+    "findit": "~0.1.2"
   }
 }

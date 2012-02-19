@@ -2,7 +2,7 @@ var markdown_conref = require('../markdown_conrefs');
 var fs = require('fs');
 var assert = require('assert');
 
-markdown_conref.init(".", ".md", [ "goldDoc.md", "replacedContent.md" ]);
+markdown_conref.init( [ ".", "../" ], ".md", [ "goldDoc.md", "replacedContent.md", "readme.md" ]);
 
 fs.readFile("testDoc.md", 'utf8', function(err, data) {
 	if (!err)
