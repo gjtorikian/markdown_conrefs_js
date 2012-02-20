@@ -21,29 +21,29 @@ exports.init = function(source, type, exclusions) {
     if (type !== undefined) { // well, we have at least one more argument
         if (Array.isArray(type)) { // it's not type, it's an array
             exclusions = type;
-            type = "\.md";
+            type = ".md";
         }
         else if (typeof type == "string") {
-            if (type.charAt(0) != ".") { // e.g. ".md", escape the '.'
-                type = "\." + type;
+            if (type.charAt(0) != ".") { // e.g. "md", add the '.'
+                type = "." + type;
             }
          }
 
     }
     else {
-        type = "\.md";
+        type = ".md";
     }
         
     console.log("Creating conrefs for " + source);
 
-    var extRE = new RegExp(type + '$');
-
     source.forEach(function(src) {
-        var foundFiles = findit.sync(src);
-            foundFiles.forEach(function(f) {
-            if (f.match(extRE))
-                files.push(path.resolve(f));
-        });
+        if (src !== undefined && src !== '') {
+            var foundFiles = findit.sync(src);
+                foundFiles.forEach(function(f) {
+                if (path.extname(f) == type)
+                    files.push(path.resolve(f));
+            });
+        }
     });
 
     if (exclusions !== undefined) { // remove excluded files
@@ -277,7 +277,9 @@ function eliminateDuplicates(arr) {
     obj[arr[i]]=0;
   }
   for (i in obj) {
-    out.push(i);
+    if (i !== undefined && i !== '') {
+        out.push(i);
+    }
   }
   return out;
 }
