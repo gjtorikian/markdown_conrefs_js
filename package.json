@@ -1,6 +1,6 @@
 {
   "name": "markdown_conrefs",
-  "version" : "1.1.5",
+  "version" : "1.1.6",
   "description" : "A system for including content references (conrefs) into Markdown files",
   "main" : "markdown_conrefs.js",
   "keywords" : [

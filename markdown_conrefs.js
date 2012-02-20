@@ -13,62 +13,50 @@ var idToHash = new hash();
 exports.init = function(source, type, exclusions) {
     var files = [ ], walker;
 
-    if (source == ".") {
-        source =  [ process.cwd() ] ;
+    if (!Array.isArray(source)) {
+        console.error(source + " is not an array!");
+        process.exit(0);
     }
 
-    if (!Array.isArray(source) && fs.statSync(source).isFile()) { // assume a single file
-        files.push(source);
-        type = path.extname(source);
-
-        console.log("Creating conrefs for " + source);
-    }
-
-    else {
-        if (!Array.isArray(source) && fs.statSync(source).isDirectory()) { // assume a single directory
-            source = [ source ];
-        }
-        
-        console.log("Creating conrefs in " + source);
-
-        if (type !== undefined) { // well, we have at least one more argument
-            if (Array.isArray(type)) { // it's not type, it's an array
-                exclusions = type;
-                type = "\.md";
-            }
-            else if (typeof type == "string") {
-                if (type.charAt(0) != ".") { // e.g. ".md", escape the '.'
-                    type = "\." + type;
-                }
-            }
-
-        }
-        else {
+    if (type !== undefined) { // well, we have at least one more argument
+        if (Array.isArray(type)) { // it's not type, it's an array
+            exclusions = type;
             type = "\.md";
         }
+        else if (typeof type == "string") {
+            if (type.charAt(0) != ".") { // e.g. ".md", escape the '.'
+                type = "\." + type;
+            }
+         }
 
-        var extRE = new RegExp(type + '$');
+    }
+    else {
+        type = "\.md";
+    }
+        
+    console.log("Creating conrefs for " + source);
 
-        source.forEach(function(src) {
-            var foundFiles = findit.sync(src);
+    var extRE = new RegExp(type + '$');
+
+    source.forEach(function(src) {
+        var foundFiles = findit.sync(src);
             foundFiles.forEach(function(f) {
-                if (f.match(extRE))
-                    files.push(path.resolve(f));
-            });
+            if (f.match(extRE))
+                files.push(path.resolve(f));
         });
+    });
 
-        if (exclusions !== undefined) { // remove excluded files
-            files = files.filter(function (f) {
-                var found = false;
-                for (var i = 0; i < exclusions.length; i++)
-                {
-                    if (f.indexOf(exclusions[i]) >= 0) {
-                            found = true;
-                    }
+    if (exclusions !== undefined) { // remove excluded files
+        files = files.filter(function (f) {
+            var found = false;
+            for (var i = 0; i < exclusions.length; i++)
+            {
+                if (f.indexOf(exclusions[i]) >= 0) {
+                    found = true;
                 }
-                if (!found) return f;
-            });
-        }
+            }
+            if (!found) return f;
+        });
     }
 
     files = eliminateDuplicates(files);

@@ -80,12 +80,8 @@ I am working on [Project X]{: #product .secret}. I love being on [Project X]{: .
 First, add `require('markdown_conrefs')` to your code. This module only has two functions:
 
 * `init(source [, type] [, exclusions ])` must be called first! This creates the id-to-content hash. The parameters are:
-  * `source` is either:  
-   * A string containing the path to a single file
-   * A string name of a directory
-   * An Array of strings for directories and filenames
-   `source` represents the file you want to parse, _or_, the highest level directory you want to start searching content references for--this module will recursively find all conref IDs in files to keep track of them. **Note**: if you provide just the name of a single file for `source`, the other two parameters are unnecessary and won't do anything.
-  * `type` is the extension of your markdown files. This is optional, and defaults to ".md"
+  * `source` is an array of strings for directories and filenames. `source` can represent the file you want to parse, the files you want to parse, or the highest level directory you want to start searching content references for--this module will recursively find all conref IDs in files to keep track of them.
+  * `type` is the extension of your markdown files. This is optional, and defaults to ".md". You can either include the dot or omit it.
   * `exclusions` is an array of strings, indicating any files or directories you don't want to process when `source` is a directory. This is optional.
 
 This function has no return value, and is synchronous/blocking.
