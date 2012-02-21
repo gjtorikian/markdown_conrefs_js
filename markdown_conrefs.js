@@ -2,35 +2,39 @@ var fs = require('fs'),
     path = require('path'),
     assert = require('assert'),
     util = require('util');
+
 var hash = require('hash'),
-    findit = require('findit');
+    async = require('async'),
+    findit = require('findit'),
+    Args = require("vargs").Constructor;
 
 markdown_conrefs = exports;
 
 var idToHash = new hash();
 
 // needs to be synch to load the entire hash table first
-exports.init = function(source, type, exclusions) {
+exports.init = function(source, type, exclusions, callback) {
+    var args = new(Args)(arguments);
     var files = [ ], walker;
 
-    if (!Array.isArray(source)) {
-        console.error(source + " is not an array!");
-        process.exit(0);
-    }
-
-    if (type !== undefined) { // well, we have at least one more argument
-        if (Array.isArray(type)) { // it's not type, it's an array
-            exclusions = type;
-            type = ".md";
-        }
-        else if (typeof type == "string") {
-            if (type.charAt(0) != ".") { // e.g. "md", add the '.'
-                type = "." + type;
+    if (args.array.length > 1) {
+        for (var a = 1; a < args.array.length; a++) {
+            if (typeof args.at(a) == "string") {
+                if (args.at(a).charAt(0) != ".") { // e.g. "md", add the '.'
+                    type = "." + args.at(a);
+                } 
             }
-         }
-
+            if (Array.isArray(args.at(a))) {
+                exclusions = args.at(a);
+            }
+            if (typeof args.at(a) == "function") {
+                callback = args.at(a);
+            }
+        }
     }
-    else {
+
+    // args up there did not set type
+    if (typeof type != "string") {
         type = ".md";
     }
         
@@ -46,7 +50,7 @@ exports.init = function(source, type, exclusions) {
         }
     });
 
-    if (exclusions !== undefined) { // remove excluded files
+    if (exclusions !== undefined && Array.isArray(exclusions)) { // remove excluded files
         files = files.filter(function (f) {
             var found = false;
             for (var i = 0; i < exclusions.length; i++)
@@ -61,7 +65,7 @@ exports.init = function(source, type, exclusions) {
 
     files = eliminateDuplicates(files);
 
-    files.forEach(function(file, idx, arr) { 
+    async.forEach(files, function(file, cb) { 
         //console.log("Reading " + file + "...");
         var data = fs.readFileSync(file, "utf8");
 
@@ -145,39 +149,38 @@ exports.init = function(source, type, exclusions) {
                 }
             });
         }
-        
-        if (idx == arr.length - 1) {
-            console.log("Finished setting up conrefs...");
-            //console.log("Hashtable: " + util.inspect(idToHash));
+
+        cb(null);
+    }, function(err) {
+        console.log("Finished setting up conrefs...");
+        if (callback !== undefined && typeof callback == "function") {
+            callback(err);
         }
     });
 };
 
-exports.replaceConref = function(data) { 
-    var idRE = data.match(/\{:([^\s]+?)\}/g);
+exports.replaceConref = function(data, callback) { 
+    var idRE = data.match(/\{:([^\s]+?)\}/g),
+        conRefData = data, _conrefData;
 
     if (idRE !== null) {
-        idRE.forEach(function(element) {
+        async.forEach(idRE, function(element, cb) {
             var id = element.match(/\{:([^\s]+?)\}/)[1];
 
             var phrase = idLookup(id, data);
-
-            data = data.replace("{:"+id+"}", phrase);
+            conRefData = conRefData.replace("{:"+id+"}", phrase);
+            
+            _conrefData = conRefData;
+            cb(null);
+        }, function(err) {
+            callback(null, _conrefData);
         });
-
-        //console.log("Swapped tagged conref");
     }
-
-    else {
-        //console.log("Be grumpy.");
-    }
-
-    return data;
 };
 
 // helper functions 
 
-function idLookup(id) {
+function idLookup(id, callback) {
     var phrase = idToHash.get(id);
 
     if (phrase === undefined) 
