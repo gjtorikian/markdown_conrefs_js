@@ -175,6 +175,8 @@ exports.replaceConref = function(data, callback) {
         }, function(err) {
             callback(null, _conrefData);
         });
+    } else {
+        callback(null, data);
     }
 };
 
