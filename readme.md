@@ -79,18 +79,17 @@ I am working on [Project X]{: #product .secret}. I love being on [Project X]{: .
 
 First, add `require('markdown_conrefs')` to your code. This module only has two functions:
 
-* `init(source [, type] [, exclusions ] [, callback])` must be called first! This creates the id-to-content hash. The parameters are:
+* `init(source [, type] [, exclusions ]` must be called first! This creates the id-to-content hash. The parameters are:
   * `source` is an array of strings for directories and filenames. `source` can represent the file you want to parse, the files you want to parse, or the highest level directory you want to start searching content references for--this module will recursively find all conref IDs in files to keep track of them.
   * `type` is the extension of your markdown files. This is optional, and defaults to ".md". You can either include the dot or omit it.
   * `exclusions` is an array of strings, indicating any files or directories you don't want to process when `source` is a directory. This is optional.
-  * `callback` is an optional callback function to execute once the initialization is complete. This takes one argument, `err`.
 
 This function has no return value, and is synchronous/blocking.
 
-* `replaceConref(data, callback)` when you're ready to apply the conrefs, use this function. This function takes two parameters:
+* `replaceConref(data)` when you're ready to apply the conrefs, use this function. This function takes one parameter:
   * `data`, the string containing the markdown text--it's usually the file you're reading.
-  * `callback`, a required function that returns two parameters--`err` and `conRefData`, which is the transformed data
-  
+  It returns `data` with the conrefs replaced; if no conref IDs are found, just plain old `data` is returned
+ 
 Check out the _test/_ directory for an example; just run `cd test && node test/test.js` from this directory.
 
 Keep in mind that this module only replaces the references; you'll still need to run a Markdown parser in order to actually generate HTML.

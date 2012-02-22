@@ -13,7 +13,7 @@ markdown_conrefs = exports;
 var idToHash = new hash();
 
 // needs to be synch to load the entire hash table first
-exports.init = function(source, type, exclusions, callback) {
+exports.init = function(source, type, exclusions) {
     var args = new(Args)(arguments);
     var files = [ ], walker;
 
@@ -26,9 +26,6 @@ exports.init = function(source, type, exclusions, callback) {
             }
             if (Array.isArray(args.at(a))) {
                 exclusions = args.at(a);
-            }
-            if (typeof args.at(a) == "function") {
-                callback = args.at(a);
             }
         }
     }
@@ -153,36 +150,30 @@ exports.init = function(source, type, exclusions, callback) {
         cb(null);
     }, function(err) {
         console.log("Finished setting up conrefs...");
-        if (callback !== undefined && typeof callback == "function") {
-            callback(err);
-        }
     });
 };
 
-exports.replaceConref = function(data, callback) { 
+exports.replaceConref = function(data) { 
     var idRE = data.match(/\{:([^\s]+?)\}/g),
-        conRefData = data, _conrefData;
+        conRefData = data;
 
     if (idRE !== null) {
-        async.forEach(idRE, function(element, cb) {
+        idRE.forEach(function(element) {
             var id = element.match(/\{:([^\s]+?)\}/)[1];
 
-            var phrase = idLookup(id, data);
+            var phrase = idLookup(id);
             conRefData = conRefData.replace("{:"+id+"}", phrase);
-            
-            _conrefData = conRefData;
-            cb(null);
-        }, function(err) {
-            callback(null, _conrefData);
         });
+
+        return conRefData;
     } else {
-        callback(null, data);
+        return data;
     }
 };
 
 // helper functions 
 
-function idLookup(id, callback) {
+function idLookup(id) {
     var phrase = idToHash.get(id);
 
     if (phrase === undefined) 
