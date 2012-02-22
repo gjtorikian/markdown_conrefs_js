@@ -37,6 +37,10 @@ exports.init = function(source, type, exclusions) {
         
     console.log("Creating conrefs for " + source);
 
+    if (!Array.isArray(source)) {
+        source = [ source ]
+    }
+    
     source.forEach(function(src) {
         if (src !== undefined && src !== '') {
             var foundFiles = findit.sync(src);
