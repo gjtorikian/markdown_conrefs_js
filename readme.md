@@ -33,7 +33,7 @@ Notice that there are three ways in Maruku to define attributes; this conref sys
 To attach conrefs inline, you'll need to wrap the content with brackets (`[ ]`), and then continue with the same attribute format, like so:
 
 ```
-I don't want to have to rewrite this.]{: .class1 id=aTruth .class2}
+[I don't want to have to rewrite this.]{: .class1 id=aTruth .class2}
 [**A RELIEF**]{: key=value id='expression' foo=bar}
 [Genesis]{: #newProj} 
 ```
