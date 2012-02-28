@@ -14,7 +14,7 @@ From npm, just do
 
 # Syntax
 
-The syntax follows the superior [Maruku metadata format for Markdown](http://maruku.rubyforge.org/maruku.html#meta). IDs are either attached at the block level, or inline.
+The syntax follows the superior [Maruku metadata format for Markdown](http://maruku.rubyforge.org/proposal.html). IDs are either attached at the block level, or inline.
 
 To attach to the block level, just create metadata for the last line of the block, _with an id element_, like so:
 
