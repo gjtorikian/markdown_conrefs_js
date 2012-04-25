@@ -159,6 +159,7 @@ exports.init = function(source, type, exclusions) {
 
 exports.replaceConref = function(data) { 
     var idRE = data.match(/\{:([^\s]+?)\}/g),
+        original = data.match(/\[(.+?)\]\{:\s*((?:\\\}|[^\}])*)\s*\}/),
         conRefData = data;
 
     if (idRE !== null) {
@@ -170,9 +171,11 @@ exports.replaceConref = function(data) {
         });
 
         return conRefData;
-    } else {
-        return data;
+    } else if (original !== null) {
+        return original[1];
     }
+    else
+        return data;
 };
 
 // helper functions 
