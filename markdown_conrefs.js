@@ -12,27 +12,24 @@ markdown_conrefs = exports;
 
 var idToHash = new hash();
 
+var options = { supportsMaruku: false, type: ".md" };
+
 // needs to be synch to load the entire hash table first
-exports.init = function(source, type, exclusions) {
+exports.init = function(source, options, exclusions) {
     var args = new(Args)(arguments);
     var files = [ ], walker;
 
     if (args.array.length > 1) {
         for (var a = 1; a < args.array.length; a++) {
-            if (typeof args.at(a) == "string") {
-                if (args.at(a).charAt(0) != ".") { // e.g. "md", add the '.'
-                    type = "." + args.at(a);
+            if (typeof args.at(a) === "object") {
+                if (args.at(a).type && args.at(a).type.charAt(0) != ".") { // e.g. "md", add the '.'
+                    options.type = "." + args.at(a);
                 } 
             }
-            if (Array.isArray(args.at(a))) {
+            else if (Array.isArray(args.at(a))) {
                 exclusions = args.at(a);
             }
         }
-    }
-
-    // args up there did not set type
-    if (typeof type != "string") {
-        type = ".md";
     }
         
     console.log("Creating conrefs for " + source);
@@ -45,7 +42,7 @@ exports.init = function(source, type, exclusions) {
         if (src !== undefined && src !== '') {
             var foundFiles = findit.sync(src);
                 foundFiles.forEach(function(f) {
-                if (path.extname(f) == type)
+                if (path.extname(f) == options.type)
                     files.push(path.resolve(f));
             });
         }
@@ -172,10 +169,9 @@ exports.replaceConref = function(data) {
         });
         
         return conRefData;
-    } else if (original !== null) {
-        //console.log(original);
-        //return original[1];
-        // we found the source; strip the leading [ ] and {: } from the actual Markdown
+    } else if (original !== null && !!options.supportsMaruku) {
+        // we found the source; strip the leading [ ] and {: } from the actual Markdown if Maruku is not supported
+        
         return data.replace(original[0], original[1]);
     }
     else // no id or source, just return the data
