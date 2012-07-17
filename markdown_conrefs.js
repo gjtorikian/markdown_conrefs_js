@@ -162,6 +162,7 @@ exports.replaceConref = function(data) {
         original = data.match(/\[(.+?)\]\{:\s*((?:\\\}|[^\}])*)\s*\}/),
         conRefData = data;
 
+    // we need to replace the reference with the source
     if (idRE !== null) {
         idRE.forEach(function(element) {
             var id = element.match(/\{:([^\s]+?)\}/)[1];
@@ -169,12 +170,15 @@ exports.replaceConref = function(data) {
             var phrase = idLookup(id);
             conRefData = conRefData.replace("{:"+id+"}", phrase);
         });
-
+        
         return conRefData;
     } else if (original !== null) {
-        return original[1];
+        //console.log(original);
+        //return original[1];
+        // we found the source; strip the leading [ ] and {: } from the actual Markdown
+        return data.replace(original[0], original[1]);
     }
-    else
+    else // no id or source, just return the data
         return data;
 };
 
