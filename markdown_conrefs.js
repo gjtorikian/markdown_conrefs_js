@@ -15,15 +15,22 @@ var idToHash = new hash();
 var options = { supportsMaruku: false, type: ".md" };
 
 // needs to be synch to load the entire hash table first
-exports.init = function(source, options, exclusions) {
+exports.init = function(source, ops, exclusions) {
     var args = new(Args)(arguments);
     var files = [ ], walker;
 
     if (args.array.length > 1) {
         for (var a = 1; a < args.array.length; a++) {
             if (typeof args.at(a) === "object") {
-                if (args.at(a).type && args.at(a).type.charAt(0) != ".") { // e.g. "md", add the '.'
-                    options.type = "." + args.at(a);
+                var _options = args.at(a);
+                
+                if (_options.supportsMaruku)
+                    options.supportsMaruku = _options.supportsMaruku;
+                if (_options.type)
+                    options.type = _options.type;
+                    
+                if (options.type.charAt(0) != ".") { // e.g. "md", add the '.'
+                    options.type = "." + options.type;
                 } 
             }
             else if (Array.isArray(args.at(a))) {
