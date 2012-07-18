@@ -82,7 +82,7 @@ First, add `require('markdown_conrefs')` to your code. This module only has two 
 * `init(source [, options] [, exclusions ]` must be called first! This creates the id-to-content hash. The parameters are:
   * `source` is a string of a directory or file name, or, an array of strings for directories and filenames. `source` can represent the file you want to parse, the files you want to parse, or the highest level directory you want to start searching content references for--this module will recursively find all conref IDs in files to keep track of them.
   * `options` is a JSON object to path that defines any options for the parser. These are the possible properties:
-     * `supportsMaruku`: set this to `true` if you know that your Markdown parser supports the Maruku syntax of `[ ]` / `{: }` to pass attributes into text. When the conrefs are replaced, these attributes will be preserved; otherwise, they are wiped. Default is `false`.
+     * `supportsAttributes`: set this to `true` if you know that your Markdown parser supports the Maruku syntax of `[ ]` / `{: }` to pass attributes into text. When the conrefs are replaced, these attributes will be preserved; otherwise, they are wiped. Default is `false`.
      * `type`: the extension of your markdown files. Defaults to ".md". You can either include the starting dot or omit it.
   * `exclusions` is an array of strings, indicating any files or directories you don't want to process when `source` is a directory. This is optional.
 

@@ -12,7 +12,7 @@ markdown_conrefs = exports;
 
 var idToHash = new hash();
 
-var options = { supportsMaruku: false, type: ".md" };
+var options = { supportsAttributes: false, type: ".md" };
 
 // needs to be synch to load the entire hash table first
 exports.init = function(source, ops, exclusions) {
@@ -24,8 +24,8 @@ exports.init = function(source, ops, exclusions) {
             if (typeof args.at(a) === "object") {
                 var _options = args.at(a);
                 
-                if (_options.supportsMaruku)
-                    options.supportsMaruku = _options.supportsMaruku;
+                if (_options.supportsAttributes)
+                    options.supportsAttributes = _options.supportsAttributes;
                 if (_options.type)
                     options.type = _options.type;
                     
@@ -163,23 +163,37 @@ exports.init = function(source, ops, exclusions) {
 
 exports.replaceConref = function(data) { 
     var idRE = data.match(/\{:([^\s]+?)\}/g),
-        original = data.match(/\[(.+?)\]\{:\s*((?:\\\}|[^\}])*)\s*\}/),
+        inlineOriginal = data.match(/\[(.+)\]\{:\s*((?:\\\}|[^\}])*)\s*\}/g),
+        blockOriginal  = data.match(/(^|\n) {0,3}\{:\s*((?:\\\}|[^\}])*)\s*\}/g),
         conRefData = data;
-
+        
     // we need to replace the reference with the source
     if (idRE !== null) {
-        idRE.forEach(function(element) {
-            var id = element.match(/\{:([^\s]+?)\}/)[1];
+        idRE.forEach(function(conref) {
+            var id = conref.match(/\{:([^\s]+?)\}/)[1];
 
             var phrase = idLookup(id);
             conRefData = conRefData.replace("{:"+id+"}", phrase);
         });
         
         return conRefData;
-    } else if (original !== null && !!options.supportsMaruku) {
+    } else if ( (inlineOriginal !== null || blockOriginal !== null) && !options.supportsAttributes) {
         // we found the source; strip the leading [ ] and {: } from the actual Markdown if Maruku is not supported
+        if (inlineOriginal) {
+            inlineOriginal.forEach(function(id) {
+                var source = id.match(/\[(.+)\]/)[1];
+                
+                conRefData = conRefData.replace(id, source);
+            });
+        }
         
-        return data.replace(original[0], original[1]);
+        if (blockOriginal) {
+            blockOriginal.forEach(function(id) {
+                conRefData = conRefData.replace(id, "");
+            });
+        }
+        
+        return conRefData;
     }
     else // no id or source, just return the data
         return data;
