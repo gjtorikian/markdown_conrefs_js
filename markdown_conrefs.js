@@ -94,7 +94,7 @@ exports.init = function(source, ops, exclusions) {
                 }
             });
         }
-
+        
         /* To support inline tags, like *, _, `...maybe one day
 
         var conrefIdsInLineUnmarked = data.match(/^\{:\s*((?:\\\}|[^\}])*)\s*\}/g);
@@ -173,12 +173,15 @@ exports.replaceConref = function(data) {
             var id = conref.match(/\{:([^\s]+?)\}/)[1];
 
             var phrase = idLookup(id);
+            
             conRefData = conRefData.replace("{:"+id+"}", phrase);
         });
         
-        return conRefData;
-    } else if ( (inlineOriginal !== null || blockOriginal !== null) && !options.supportsAttributes) {
-        // we found the source; strip the leading [ ] and {: } from the actual Markdown if Maruku is not supported
+    } 
+    
+    // we found the source; strip the leading [ ] and {: } from the actual Markdown if Maruku is not supported
+    if ( (inlineOriginal !== null || blockOriginal !== null) && !options.supportsAttributes) {
+    
         if (inlineOriginal) {
             inlineOriginal.forEach(function(id) {
                 var source = id.match(/\[(.+)\]/)[1];
@@ -193,10 +196,10 @@ exports.replaceConref = function(data) {
             });
         }
         
-        return conRefData;
     }
-    else // no id or source, just return the data
-        return data;
+    
+    // no id or source, we're just returning original data 
+    return conRefData;
 };
 
 // helper functions 
