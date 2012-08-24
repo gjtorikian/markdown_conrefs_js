@@ -77,21 +77,30 @@ I am working on [Project X]{: #product .secret}. I love being on [Project X]{: .
 
 # Using
 
-First, add `require('markdown_conrefs')` to your code. This module only has two functions:
+First, add `require('markdown_conrefs')` to your code. This module only has the following functions:
 
-* `init(source [, options] [, exclusions ]` must be called first! This creates the id-to-content hash. The parameters are:
+### init(source [, options] [, exclusions ]
+
+This must always be called first! This creates the id-to-content hash. The parameters are:
   * `source` is a string of a directory or file name, or, an array of strings for directories and filenames. `source` can represent the file you want to parse, the files you want to parse, or the highest level directory you want to start searching content references for--this module will recursively find all conref IDs in files to keep track of them.
   * `options` is a JSON object to path that defines any options for the parser. These are the possible properties:
      * `supportsAttributes`: set this to `true` if you know that your Markdown parser supports the Maruku syntax of `[ ]` / `{: }` to pass attributes into text. When the conrefs are replaced, these attributes will be preserved; otherwise, they are wiped. Default is `false`.
-     * `type`: the extension of your markdown files. Defaults to ".md". You can either include the starting dot or omit it.
+     * `type`: the extension of the files you want to keep. If omitted, all files in `source` are parsed. You can either include the starting dot or omit it.
   * `exclusions` is an array of strings, indicating any files or directories you don't want to process when `source` is a directory. This is optional.
 
 This function has no return value, and is synchronous/blocking.
 
-* `replaceConref(data)` when you're ready to apply the conrefs, use this function. This function takes one parameter:
+### replaceConref(data) 
+
+When you're ready to apply the conrefs, use this function. This function takes one parameter:
   * `data`, the string containing the markdown text--it's usually the file you're reading.
-  It returns `data` with the conrefs replaced; if no conref IDs are found, just plain old `data` is returned
+
+This function returns `data` with the conrefs replaced; if no conref IDs are found, just plain old `data` is returned
  
+### getData()
+
+Returns the entire hash list.
+
 Check out the _test/_ directory for an example; just run `cd test && node test/test.js` from this directory.
 
 Keep in mind that this module only replaces the references; you'll still need to run a Markdown parser in order to actually generate HTML.

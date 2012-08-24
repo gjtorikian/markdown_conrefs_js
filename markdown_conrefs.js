@@ -12,7 +12,7 @@ markdown_conrefs = exports;
 
 var idToHash = new hash();
 
-var options = { supportsAttributes: false, type: ".md" };
+var options = { supportsAttributes: false };
 
 // needs to be synch to load the entire hash table first
 exports.init = function(source, ops, exclusions) {
@@ -26,11 +26,12 @@ exports.init = function(source, ops, exclusions) {
                 
                 if (_options.supportsAttributes)
                     options.supportsAttributes = _options.supportsAttributes;
-                if (_options.type)
+
+                if (_options.type) {
                     options.type = _options.type;
-                    
-                if (options.type.charAt(0) != ".") { // e.g. "md", add the '.'
-                    options.type = "." + options.type;
+                    if (options.type.charAt(0) != ".") { // e.g. "md", add the '.'
+                        options.type = "." + options.type;
+                    }
                 } 
             }
             else if (Array.isArray(args.at(a))) {
@@ -49,7 +50,12 @@ exports.init = function(source, ops, exclusions) {
         if (src !== undefined && src !== '') {
             var foundFiles = findit.sync(src);
                 foundFiles.forEach(function(f) {
-                if (path.extname(f) == options.type)
+                if (options.type) {
+                    if (path.extname(f) == options.type) {
+                        files.push(path.resolve(f));
+                    }
+                }
+                else
                     files.push(path.resolve(f));
             });
         }
@@ -166,7 +172,7 @@ exports.replaceConref = function(data) {
         inlineOriginal = data.match(/\[(.+)\]\{:\s*((?:\\\}|[^\}])*)\s*\}/g),
         blockOriginal  = data.match(/(^|\n) {0,3}\{:\s*((?:\\\}|[^\}])*)\s*\}/g),
         conRefData = data;
-        
+
     // we need to replace the reference with the source
     if (idRE !== null) {
         idRE.forEach(function(conref) {
@@ -176,13 +182,12 @@ exports.replaceConref = function(data) {
             
             conRefData = conRefData.replace("{:"+id+"}", phrase);
         });
-        
     } 
-    
+
     // we found the source; strip the leading [ ] and {: } from the actual Markdown if Maruku is not supported
     if ( (inlineOriginal !== null || blockOriginal !== null) && !options.supportsAttributes) {
     
-        if (inlineOriginal) {
+        if (inlineOriginal !== null) {
             inlineOriginal.forEach(function(id) {
                 var source = id.match(/\[(.+)\]/)[1];
                 
@@ -190,17 +195,21 @@ exports.replaceConref = function(data) {
             });
         }
         
-        if (blockOriginal) {
+        else if (blockOriginal !== null) {
             blockOriginal.forEach(function(id) {
                 conRefData = conRefData.replace(id, "");
             });
         }
         
     }
-    
+
     // no id or source, we're just returning original data 
     return conRefData;
 };
+
+exports.getData = function() {
+    return idToHash.getData();
+}
 
 // helper functions 
 
