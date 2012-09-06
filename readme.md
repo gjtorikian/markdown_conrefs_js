@@ -14,7 +14,7 @@ From npm, just do
 
 # Syntax
 
-The syntax follows the superior [Maruku metadata format for Markdown](http://maruku.rubyforge.org/proposal.html). IDs are either attached at the block level, or inline.
+The syntax follows the superior [Maruku metadata format for Markdown](http://maruku.rubyforge.org/proposal.html). IDs are either attached at the block level, or inline. There are a few ways in Maruku to define attributes; this conref system supports all of them (with `#blah`, with `id="blah"`, with `id='blah'`, or just plain `id=blah`).
 
 To attach to the block level, just create metadata for the last line of the block, _with an id element_, like so:
 
@@ -27,8 +27,6 @@ To attach to the block level, just create metadata for the last line of the bloc
 Here's a great, and final, paragraph.
 {: id="myPara"}
 ```
-
-Notice that there are three ways in Maruku to define attributes; this conref system supports all of them.
 
 To attach conrefs inline, you'll need to wrap the content with brackets (`[ ]`), and then continue with the same attribute format, like so:
 
@@ -79,14 +77,16 @@ I am working on [Project X]{: #product .secret}. I love being on [Project X]{: .
 
 First, add `require('markdown_conrefs')` to your code. This module only has the following functions:
 
-### init(source [, options] [, exclusions ]
+### init(source [, options])
 
 This must always be called first! This creates the id-to-content hash. The parameters are:
   * `source` is a string of a directory or file name, or, an array of strings for directories and filenames. `source` can represent the file you want to parse, the files you want to parse, or the highest level directory you want to start searching content references for--this module will recursively find all conref IDs in files to keep track of them.
   * `options` is a JSON object to path that defines any options for the parser. These are the possible properties:
      * `supportsAttributes`: set this to `true` if you know that your Markdown parser supports the Maruku syntax of `[ ]` / `{: }` to pass attributes into text. When the conrefs are replaced, these attributes will be preserved; otherwise, they are wiped. Default is `false`.
-     * `type`: the extension of the files you want to keep. If omitted, all files in `source` are parsed. You can either include the starting dot or omit it.
-  * `exclusions` is an array of strings, indicating any files or directories you don't want to process when `source` is a directory. This is optional.
+     * `type`: the extension of the files you want to keep. If omitted, all files in `source` are parsed. You can either include the starting dot (`.md`) or omit it (`md`).
+     * `exclusions`: an array of strings, indicating any files or directories you don't want to process when `source` is a directory.
+     * `blockPrefixChar`: a string, indicating the starting line character in your files. This is used when parsing block conrefs. For example, you may be parsing Javascript comments, in which case `blockPrefixChar: "*"`.
+     * `blockPrefixCharOptional`: a boolean which, if `true`, means that the `blockPrefixChar` could, or could not, be there. In other (RegExp) words: `options.blockPrefixCharOptional ? "?"`.
 
 This function has no return value, and is synchronous/blocking.
 

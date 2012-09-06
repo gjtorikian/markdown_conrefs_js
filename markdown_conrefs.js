@@ -12,32 +12,17 @@ markdown_conrefs = exports;
 
 var idToHash = new hash();
 
-var options = { supportsAttributes: false };
+var options = { supportsAttributes: false, blockPrefixChar: "", blockPrefixCharOptional: false, exclusions: []};
 
 // needs to be synch to load the entire hash table first
-exports.init = function(source, ops, exclusions) {
+exports.init = function(source, ops) {
     var args = new(Args)(arguments);
     var files = [ ], walker;
 
-    if (args.array.length > 1) {
-        for (var a = 1; a < args.array.length; a++) {
-            if (typeof args.at(a) === "object") {
-                var _options = args.at(a);
-                
-                if (_options.supportsAttributes)
-                    options.supportsAttributes = _options.supportsAttributes;
+    for (var attrname in ops) { options[attrname] = ops[attrname]; }
 
-                if (_options.type) {
-                    options.type = _options.type;
-                    if (options.type.charAt(0) != ".") { // e.g. "md", add the '.'
-                        options.type = "." + options.type;
-                    }
-                } 
-            }
-            else if (Array.isArray(args.at(a))) {
-                exclusions = args.at(a);
-            }
-        }
+    if (options.type && options.type.charAt(0) != ".") { // e.g. "md", add the '.'
+        options.type = "." + options.type;
     }
         
     console.log("Creating conrefs for " + source);
@@ -61,12 +46,13 @@ exports.init = function(source, ops, exclusions) {
         }
     });
 
-    if (exclusions !== undefined && Array.isArray(exclusions)) { // remove excluded files
+    // remove excluded files
+    if (options.exclusions !== undefined && Array.isArray(options.exclusions) && options.exclusions.length > 0) { 
         files = files.filter(function (f) {
             var found = false;
-            for (var i = 0; i < exclusions.length; i++)
+            for (var i = 0; i < options.exclusions.length; i++)
             {
-                if (f.indexOf(exclusions[i]) >= 0) {
+                if (f.indexOf(optionexclusions[i]) >= 0) {
                     found = true;
                 }
             }
@@ -118,10 +104,18 @@ exports.init = function(source, ops, exclusions) {
                 else idToHash.set(id, conrefId[1]);
             });
         } */
-                       
-        var conrefIdsBlock = data.match(/(^|\n) {0,3}\{:\s*((?:\\\}|[^\}])*)\s*\}/g);
+        
+        var prefixValue = "";
+
+        if (options.blockPrefixChar.length) {
+            prefixValue = options.blockPrefixChar + options.blockPrefixCharOptional ? "?" : ""
+        }
+        
+        var blockRegExp = new RegExp("(^|\\n)" + prefixValue + " {0,3}\\{:\\s*((?:\\\\}|[^\\}])*)\\s*\\}", "g");
+        var conrefIdsBlock = data.match(blockRegExp);
 
         if (conrefIdsBlock !== null) {
+            console.log("block", conrefIdsBlock);
             conrefIdsBlock.forEach(function(element) {
                 var conrefId = element.match(/(^|\n) {0,3}\{:\s*((?:\\\}|[^\}])*)\s*\}/);
 
