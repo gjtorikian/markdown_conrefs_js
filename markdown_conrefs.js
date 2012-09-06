@@ -115,7 +115,6 @@ exports.init = function(source, ops) {
         var conrefIdsBlock = data.match(blockRegExp);
 
         if (conrefIdsBlock !== null) {
-            console.log("block", conrefIdsBlock);
             conrefIdsBlock.forEach(function(element) {
                 var conrefId = element.match(/(^|\n) {0,3}\{:\s*((?:\\\}|[^\}])*)\s*\}/);
 
