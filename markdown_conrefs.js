@@ -63,11 +63,22 @@ exports.init = function(source, ops) {
     files = eliminateDuplicates(files);
 
     async.forEach(files, function(file, cb) { 
-        //console.log("Reading " + file + "...");
+        //console.log("Reading " + file + " ...");
+        // needs to be sync in case duplicate IDs are found elsehwere
         var data = fs.readFileSync(file, "utf8");
 
         // collect defined IDs in files
         var conrefIdsInline = data.match(/\[(.+?)\]\{:\s*((?:\\\}|[^\}])*)\s*\}/g);
+
+        // collect IDs for blocks
+        var prefixValue = "";
+
+        if (options.blockPrefixChar.length) {
+            prefixValue = options.blockPrefixChar + options.blockPrefixCharOptional ? "?" : ""
+        }
+        
+        var blockRegExp = new RegExp("(^|\\n)" + prefixValue + " {0,3}\\{:\\s*((?:\\\\}|[^\\}])*)\\s*\\}", "g");
+        var conrefIdsBlock = data.match(blockRegExp);
 
         if (conrefIdsInline !== null) {
                 conrefIdsInline.forEach(function(element) {
@@ -104,17 +115,8 @@ exports.init = function(source, ops) {
                 else idToHash.set(id, conrefId[1]);
             });
         } */
-        
-        var prefixValue = "";
 
-        if (options.blockPrefixChar.length) {
-            prefixValue = options.blockPrefixChar + options.blockPrefixCharOptional ? "?" : ""
-        }
-        
-        var blockRegExp = new RegExp("(^|\\n)" + prefixValue + " {0,3}\\{:\\s*((?:\\\\}|[^\\}])*)\\s*\\}", "g");
-        var conrefIdsBlock = data.match(blockRegExp);
-
-        if (conrefIdsBlock !== null) {
+        else if (conrefIdsBlock !== null) {
             conrefIdsBlock.forEach(function(element) {
                 var conrefId = element.match(/(^|\n) {0,3}\{:\s*((?:\\\}|[^\}])*)\s*\}/);
 
@@ -210,7 +212,7 @@ function idLookup(id) {
     var phrase = idToHash.get(id);
 
     if (phrase === undefined) 
-        assert.ok(false, "There's no content associated with the the id '" + id +"'");
+        assert.ok(false, "There's no content associated with the id '" + id +"'");
 
     return phrase;
 }
