@@ -116,7 +116,7 @@ exports.init = function(source, ops) {
             });
         } */
 
-        else if (conrefIdsBlock !== null) {
+        if (conrefIdsBlock !== null) {
             conrefIdsBlock.forEach(function(element) {
                 var conrefId = element.match(/(^|\n) {0,3}\{:\s*((?:\\\}|[^\}])*)\s*\}/);
 
