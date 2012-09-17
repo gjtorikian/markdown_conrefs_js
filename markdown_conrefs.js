@@ -74,10 +74,18 @@ exports.init = function(source, ops) {
         var prefixValue = "";
 
         if (options.blockPrefixChar.length) {
-            prefixValue = options.blockPrefixChar + options.blockPrefixCharOptional ? "?" : ""
+            prefixValue = options.blockPrefixChar + (options.blockPrefixCharOptional ? "?" : "");
         }
         
-        var blockRegExp = new RegExp("(^|\\n)" + prefixValue + " {0,3}\\{:\\s*((?:\\\\}|[^\\}])*)\\s*\\}", "g");
+        var blockRegExp;
+
+        if (prefixValue.length > 0) {
+            blockRegExp = new RegExp("(^|\\n)" + prefixValue + " {0,3}\\{:\\s*((?:\\\\}|[^\\}])*)\\s*\\}", "g");
+        }
+        else {
+            blockRegExp = new RegExp("(^|\\n) {0,3}\\{:\\s*((?:\\\\}|[^\\}])*)\\s*\\}", "g");
+        }
+
         var conrefIdsBlock = data.match(blockRegExp);
 
         if (conrefIdsInline !== null) {
@@ -132,8 +140,8 @@ exports.init = function(source, ops) {
                     var attrToLookFor = "{: " + conrefId[2].trim() + "}";
                     var content = new Array(1);
 
-                    // probably the most expensive/slow way to do this
-                    // can't seem to RegExp backwards like in Maruku
+                    // probably an expensive/slow way to do this
+                    // need to grab content backwards, basically
                     var lines = data.split("\n").reverse();
                     for (var l = 0; l < lines.length; l++)
                     {
