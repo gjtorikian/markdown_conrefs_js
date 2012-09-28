@@ -80,10 +80,10 @@ exports.init = function(source, ops) {
         var blockRegExp;
 
         if (prefixValue.length > 0) {
-            blockRegExp = new RegExp("(^|\\n)" + prefixValue + " {0,3}\\{:\\s*((?:\\\\}|[^\\}])*)\\s*\\}", "g");
+            blockRegExp = new RegExp("(^|\\n|\\s*)" + prefixValue + " {0,3}\\{:\\s*(([^\\}])*)\\s*\\}", "g");
         }
         else {
-            blockRegExp = new RegExp("(^|\\n) {0,3}\\{:\\s*((?:\\\\}|[^\\}])*)\\s*\\}", "g");
+            blockRegExp = new RegExp("(^|\\n|\\s*) {0,3}\\{:\\s*(([^\\}])*)\\s*\\}", "g");
         }
 
         var conrefIdsBlock = data.match(blockRegExp);
@@ -126,7 +126,7 @@ exports.init = function(source, ops) {
 
         if (conrefIdsBlock !== null) {
             conrefIdsBlock.forEach(function(element) {
-                var conrefId = element.match(/(^|\n) {0,3}\{:\s*((?:\\\}|[^\}])*)\s*\}/);
+                var conrefId = element.match(/(^|\n|\s*) {0,3}\{:\s*((?:\\\}|[^\}])*)\s*\}/);
 
                 var metas = process_meta_hash( conrefId[2] );
                 var id = metas.id; 
@@ -140,9 +140,23 @@ exports.init = function(source, ops) {
                     var attrToLookFor = "{: " + conrefId[2].trim() + "}";
                     var content = new Array(1);
 
-                    // probably an expensive/slow way to do this
-                    // need to grab content backwards, basically
+                    // probably an expensive/slow way to do this:
+                    // grabbing content backwards, to stop at first blank line
                     var lines = data.split("\n").reverse();
+                    
+                    var stoppingRE;
+
+                    var prefixValue = "";
+            
+                    if (options.blockPrefixChar.length) {
+                        prefixValue = options.blockPrefixChar + (options.blockPrefixCharOptional ? "?" : "");
+                    }
+            
+                    if (prefixValue.length > 0)
+                        stoppingRE = new RegExp("^\\s*" + prefixValue + "\\s*$");
+                    else
+                        stoppingRE = /^\s*$/
+                    
                     for (var l = 0; l < lines.length; l++)
                     {
                         if (lines[l].match(attrToLookFor))
@@ -150,7 +164,7 @@ exports.init = function(source, ops) {
                             do {
                                 content.push(lines[l]);
                                 l++;
-                            } while (!lines[l].match(/^\s*$/));
+                            } while (!lines[l].match(stoppingRE));
 
                         }
                     }
@@ -158,7 +172,7 @@ exports.init = function(source, ops) {
                     var phrase = content.reverse(); // flip it around
                     phrase.splice(phrase.length - 2, 1); // cut full metadata
                     phrase = phrase.join("\n"); // make it a string
-
+                    
                     idToHash.set(id, phrase + attrs);
                 }
             });
