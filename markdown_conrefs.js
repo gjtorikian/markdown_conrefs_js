@@ -80,14 +80,14 @@ exports.init = function(source, ops) {
         var blockRegExp;
 
         if (prefixValue.length > 0) {
-            blockRegExp = new RegExp("(^\\s*)" + prefixValue + " {0,3}\\{:\\s*(([^\\}])*)\\s*\\}", "g");
+            blockRegExp = new RegExp("(\\n\\s*|^\\s*)" + prefixValue + " {0,3}\\{:\\s*(([^\\}])*)\\s*\\}", "g");
         }
         else {
-            blockRegExp = new RegExp("(^\\s*) {0,3}\\{:\\s*(([^\\}])*)\\s*\\}", "g");
+            blockRegExp = new RegExp("(\\n\\s*|^\\s*) {0,3}\\{:\\s*(([^\\}])*)\\s*\\}", "g");
         }
 
         var conrefIdsBlock = data.match(blockRegExp);
-
+        
         if (conrefIdsInline !== null) {
                 conrefIdsInline.forEach(function(element) {
                 var conrefId = element.match(/(\[(.+?)\])\{:\s*((?:\\\}|[^\}])*)\s*\}/);
@@ -126,18 +126,18 @@ exports.init = function(source, ops) {
 
         if (conrefIdsBlock !== null) {
             conrefIdsBlock.forEach(function(element) {
-                var conrefId = element.match(/(^|\n|\s*) {0,3}\{:\s*((?:\\\}|[^\}])*)\s*\}/);
+                var conrefId = element.match(/\{:\s*((?:\\\}|[^\}])*)\s*\}/);
 
-                var metas = process_meta_hash( conrefId[2] );
+                var metas = process_meta_hash( conrefId[1] );
                 var id = metas.id; 
-                var attrs = removeID(conrefId[2], id);
+                var attrs = removeID(conrefId[1], id);
 
                 if (id !== undefined) {
                     if (idToHash.get(id) !== undefined) {
                         assert.ok(false, "Duplicate ID detected for '" + id +"' in " + file);
                     }
 
-                    var attrToLookFor = "{: " + conrefId[2].trim() + "}";
+                    var attrToLookFor = "{: " + conrefId[1].trim() + "}";
                     var content = new Array(1);
 
                     // probably an expensive/slow way to do this:
