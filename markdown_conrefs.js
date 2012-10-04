@@ -80,10 +80,10 @@ exports.init = function(source, ops) {
         var blockRegExp;
 
         if (prefixValue.length > 0) {
-            blockRegExp = new RegExp("(^|\\n|\\s*)" + prefixValue + " {0,3}\\{:\\s*(([^\\}])*)\\s*\\}", "g");
+            blockRegExp = new RegExp("(^\\s*)" + prefixValue + " {0,3}\\{:\\s*(([^\\}])*)\\s*\\}", "g");
         }
         else {
-            blockRegExp = new RegExp("(^|\\n|\\s*) {0,3}\\{:\\s*(([^\\}])*)\\s*\\}", "g");
+            blockRegExp = new RegExp("(^\\s*) {0,3}\\{:\\s*(([^\\}])*)\\s*\\}", "g");
         }
 
         var conrefIdsBlock = data.match(blockRegExp);
