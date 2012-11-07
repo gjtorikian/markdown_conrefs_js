@@ -10,7 +10,7 @@ var hash = require('hash'),
 
 markdown_conrefs = exports;
 
-var idToHash = new hash();
+var idToHash;
 
 var options = { supportsAttributes: false, blockPrefixChar: "", blockPrefixCharOptional: false, exclusions: []};
 
@@ -25,8 +25,9 @@ exports.init = function(source, ops) {
         options.type = "." + options.type;
     }
         
-    console.log("Creating conrefs for " + source);
-
+    console.log("Creating conrefs...");//for " + source);
+    idToHash = new hash();
+    
     if (!Array.isArray(source)) {
         source = [ source ]
     }
