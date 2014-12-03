@@ -2,3 +2,4 @@ node_modules/
 .c9revisions
 .settings
 .DS_Store
+npm-debug.log
